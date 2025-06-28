@@ -1,10 +1,15 @@
+import typing
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 import requests
 
+JSONType = typing.Union[
+    dict[str, "JSONType"], list["JSONType"], str, int, float, bool, None
+]
 
-def get_events(calendar_id: str) -> list[dict]:
+
+def get_events(calendar_id: str) -> JSONType:
     current_time = datetime.now(timezone(timedelta(hours=+2)))
     later = current_time + timedelta(weeks=1)
     time_min_encoded = encoded(current_time)
@@ -14,7 +19,7 @@ def get_events(calendar_id: str) -> list[dict]:
     return response.json()["items"]
 
 
-def dummy_get_events(calendar_id: str) -> list[dict]:
+def dummy_get_events(calendar_id: str) -> JSONType:
     """
     A dummy function that returns the same Google Calendar response
     with dict that always has events.
@@ -23,6 +28,7 @@ def dummy_get_events(calendar_id: str) -> list[dict]:
     :return: Google Calendar dict with events
     """
     import json
+
     return json.loads(r"""{
 	"kind": "calendar#events",
 	"etag": "\"p32nsda4rvm5os0o\"",
@@ -74,7 +80,7 @@ def encoded(value: datetime) -> str:
     return encoded_value
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Trying to get next calendar event.")
     calendar_id = "fj88e45fvuj2hfhl3n1g0mlkus"
     events = get_events(calendar_id)

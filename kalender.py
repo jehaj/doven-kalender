@@ -9,7 +9,7 @@ JSONType = typing.Union[
 ]
 
 
-def get_events(calendar_id: str) -> JSONType:
+def get_events(calendar_id: str) -> list[JSONType]:
     current_time = datetime.now(timezone(timedelta(hours=+2)))
     later = current_time + timedelta(weeks=1)
     time_min_encoded = encoded(current_time)
@@ -19,7 +19,7 @@ def get_events(calendar_id: str) -> JSONType:
     return response.json()["items"]
 
 
-def dummy_get_events(calendar_id: str) -> JSONType:
+def dummy_get_events(calendar_id: str) -> list[JSONType]:
     """
     A dummy function that returns the same Google Calendar response
     with dict that always has events.

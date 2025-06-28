@@ -18,7 +18,7 @@ def weekday_name(weekday_index: int):
 
 if __name__ == "__main__":
     print("Doven Kalender")
-    events = get_events("fj88e45fvuj2hfhl3n1g0mlkus")
+    events = get_events("fj88e45fvuj2hfhl3n1g0mlkus", "AIzaSyDOtGM5jr8bNp1utVpG2_gSRH03RNGBkI8")
     if not len(events):
         print("Der er ingen begivenheder i den kommende uge.")
         sys.exit(0)

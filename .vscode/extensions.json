@@ -1,6 +1,5 @@
 {
     "recommendations": [
-        "terrastruct.d2",
         "ms-python.python"
     ]
 }

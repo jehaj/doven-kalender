@@ -112,22 +112,26 @@ class GeneralTests(unittest.TestCase):
         try:
             env_keys = set()
             example_keys = set()
-            
-            with open('.env') as env_file, open('.env.example') as example_file:
+
+            with open(".env") as env_file, open(".env.example") as example_file:
                 for line in env_file:
-                    if '=' in line and not line.startswith('#'):
-                        env_keys.add(line.split('=')[0].strip())
-                
+                    if "=" in line and not line.startswith("#"):
+                        env_keys.add(line.split("=")[0].strip())
+
                 for line in example_file:
-                    if '=' in line and not line.startswith('#'):
-                        example_keys.add(line.split('=')[0].strip())
-            
+                    if "=" in line and not line.startswith("#"):
+                        example_keys.add(line.split("=")[0].strip())
+
             missing_keys = env_keys - example_keys
 
-            self.assertEqual(missing_keys, set(), f"Keys in .env missing from .env.example: {missing_keys}")
+            self.assertEqual(
+                missing_keys,
+                set(),
+                f"Keys in .env missing from .env.example: {missing_keys}",
+            )
         except FileNotFoundError as e:
             self.fail(f"Could not find environment files: {e}")
 
 
-    if __name__ == "__main__":
-        unittest.main()
+if __name__ == "__main__":
+    unittest.main()

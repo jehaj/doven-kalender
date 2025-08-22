@@ -133,5 +133,53 @@ class GeneralTests(unittest.TestCase):
             self.fail(f"Could not find environment files: {e}")
 
 
+class EnvironmentTests(unittest.TestCase):
+    def test_load_dotenv(self):
+        """Test that the .env file is loaded correctly."""
+        from environment import load_dotenv, get_value
+
+        load_dotenv()
+
+        # Check if a known variable is set
+        self.assertNotEqual("", get_value("GOOGLE_API_KEY"))
+
+    def test_get_value(self):
+        """Test that get_value retrieves the correct environment variable."""
+        from environment import load_dotenv, get_value
+
+        load_dotenv()
+
+        # Assuming GOOGLE_API_KEY is set in the .env file
+        api_key = get_value("GOOGLE_API_KEY")
+        self.assertIsInstance(api_key, str)
+        self.assertGreater(len(api_key), 0)
+
+    def test_non_value(self):
+        """Test that get_value fails for nonexisting environment variable."""
+        from environment import load_dotenv, get_value
+
+        load_dotenv()
+
+        # Should throw ValueError since the key does not exist
+        with self.assertRaises(ValueError):
+            get_value("FAKE_API_KEY")
+
+    def test_setting_value(self):
+        """Test that get_value retrieves the correct environment variable
+        after setting it."""
+        from environment import load_dotenv, get_value
+
+        load_dotenv()
+
+        import os
+
+        os.environ["GOOGLE_API_KEY"] = "TEST_VALUE"
+
+        # Assuming GOOGLE_API_KEY is set in the .env file
+        api_key = get_value("GOOGLE_API_KEY")
+        self.assertIsInstance(api_key, str)
+        self.assertEqual(api_key, "TEST_VALUE")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,8 @@
+- [x] extractor
+    - [x] pre-existing python script
+- [ ] parser
+    - [ ] llm parsing → json
+    - [ ] rule-based heuristics (since csv)
+- [ ] integrator
+    - [ ] typst calendar
+    - [ ] 'facebook' post (actually just send e-mail to leader of meeting.)

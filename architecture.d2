@@ -1,0 +1,27 @@
+Google Kalender
+
+dovenKalender: {
+  kalender
+  parser
+  llm: {
+    interface
+    google
+    openai
+    mistral
+  }
+  poster: {
+    api
+    manual
+    selenium
+  }
+  generator
+}
+
+Google Kalender <- dovenKalender.kalender
+dovenKalender.kalender -> dovenKalender.parser
+dovenKalender.parser -> dovenKalender.generator
+dovenKalender.llm.interface -> dovenKalender.parser
+dovenKalender.llm.interface -> dovenKalender.generator
+dovenKalender.generator -> dovenKalender.poster
+
+dovenKalender.poster -> Facebook

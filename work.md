@@ -1,8 +1,11 @@
+# work sheet
+
 - [x] extractor
-    - [x] pre-existing python script
+  - [x] pre-existing python script
 - [ ] parser
-    - [ ] llm parsing → json
-    - [ ] rule-based heuristics (since csv)
-- [ ] integrator
-    - [ ] typst calendar
-    - [ ] 'facebook' post (actually just send e-mail to leader of meeting.)
+  - [x] llm parsing interface → json (shared LLM + pydantic schema)
+  - [ ] rule-based heuristics (since csv)
+- [ ] integrator / generator
+  - [ ] typst calendar
+  - [x] shared LLM abstraction wired in generator
+  - [ ] 'facebook' post (actually just send e-mail to leader of meeting.)

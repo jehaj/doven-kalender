@@ -9,9 +9,9 @@ import os
 import sys
 from typing import Any
 
-from generator import Generator, create_llm
-from kalender import JSONType, get_events
-from parser import EventParser, ParsedEvent
+from generator.generator import Generator, create_llm
+from extractor.kalender import JSONType, get_events
+from parser.parser import EventParser, ParsedEvent
 
 
 def parse_event_with_llm(event: JSONType, provider: str = "openai") -> ParsedEvent:

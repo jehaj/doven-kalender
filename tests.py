@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import requests
 from requests.exceptions import HTTPError, JSONDecodeError
 
-from kalender import get_events
+from extractor.kalender import get_events
 
 try:
     from pydantic import BaseModel
@@ -17,8 +17,8 @@ else:
 
 if HAS_PYDANTIC:
     from doven_kalender import generate_description
-    from generator import GeneralLLM, Generator, LLMError
-    from parser import EventParser, ParsedEvent
+    from generator.generator import GeneralLLM, Generator, LLMError
+    from parser.parser import EventParser, ParsedEvent
 
 # A sample successful response from the Google Calendar API
 DUMMY_SUCCESS_RESPONSE = json.loads(r"""{

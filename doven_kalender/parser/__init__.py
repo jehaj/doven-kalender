@@ -1,4 +1,4 @@
-"""Parser package for doven-kalender."""
+"""Parser package (packaged namespace)."""
 
 __all__ = ["parser", "get_emojis", "convert_csv_to_json"]
 

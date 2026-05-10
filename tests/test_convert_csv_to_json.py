@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from parser.convert_csv_to_json import (
+from doven_kalender.parser.convert_csv_to_json import (
     classify_month,
     convert_csv_to_json,
     extract_date_parts,

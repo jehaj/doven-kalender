@@ -31,19 +31,6 @@ class GeneralLLM(ABC):
         """Return the provider response as text for a single query."""
 
     def generate(self, query: str, response_model: type[TModel] | None = None) -> str | TModel:
-        """Generate plain text or a Pydantic-validated structured response.
-
-        Args:
-            query: User query or prompt text.
-            response_model: Optional Pydantic model used for structured output.
-
-        Returns:
-            Raw text when `response_model` is None, otherwise an instance of
-            the provided model.
-
-        Raises:
-            LLMError: If JSON cannot be parsed or validation fails.
-        """
         if response_model is None:
             return self._generate_text(query)
 
@@ -62,7 +49,6 @@ class GeneralLLM(ABC):
 
     @staticmethod
     def _structured_prompt(query: str, response_model: type[BaseModel]) -> str:
-        """Build a strict JSON-only prompt using a Pydantic JSON schema."""
         schema = json.dumps(response_model.model_json_schema(), ensure_ascii=False, indent=2)
         return (
             "You must answer as valid JSON matching this schema exactly. "
@@ -76,14 +62,6 @@ class GoogleLLM(GeneralLLM):
     """Google Gemini implementation of the GeneralLLM interface."""
 
     def __init__(self, model: str = "gemini-2.5-flash"):
-        """Initialize the Google client.
-
-        Args:
-            model: Gemini model identifier.
-
-        Raises:
-            ImportError: If the google-genai package is not installed.
-        """
         try:
             from google import genai
         except ImportError as exc:
@@ -93,23 +71,12 @@ class GoogleLLM(GeneralLLM):
         self._model = model
 
     def _generate_text(self, query: str) -> str:
-        """Generate text from Gemini for the supplied query."""
         response = self._client.models.generate_content(model=self._model, contents=query)
         return response.text or ""
 
 
 class OpenAILLM(GeneralLLM):
-    """OpenAI implementation of the GeneralLLM interface."""
-
     def __init__(self, model: str = "gpt-4o"):
-        """Initialize the OpenAI client.
-
-        Args:
-            model: OpenAI model identifier.
-
-        Raises:
-            ImportError: If the openai package is not installed.
-        """
         try:
             from openai import OpenAI
         except ImportError as exc:
@@ -119,7 +86,6 @@ class OpenAILLM(GeneralLLM):
         self._model = model
 
     def _generate_text(self, query: str) -> str:
-        """Generate text from OpenAI chat completions for the supplied query."""
         response = self._client.chat.completions.create(
             model=self._model,
             messages=[{"role": "user", "content": query}],
@@ -128,17 +94,7 @@ class OpenAILLM(GeneralLLM):
 
 
 class MistralLLM(GeneralLLM):
-    """Mistral implementation of the GeneralLLM interface."""
-
     def __init__(self, model: str = "mistral-small-latest"):
-        """Initialize the Mistral client.
-
-        Args:
-            model: Mistral model identifier.
-
-        Raises:
-            ImportError: If the mistralai package is not installed.
-        """
         try:
             from mistralai import Mistral
         except ImportError as exc:
@@ -148,7 +104,6 @@ class MistralLLM(GeneralLLM):
         self._model = model
 
     def _generate_text(self, query: str) -> str:
-        """Generate text from Mistral chat completions for the supplied query."""
         response = self._client.chat.complete(
             model=self._model,
             messages=[{"role": "user", "content": query}],
@@ -157,18 +112,6 @@ class MistralLLM(GeneralLLM):
 
 
 def create_llm(provider: str, model: str | None = None) -> GeneralLLM:
-    """Create a concrete LLM implementation by provider name.
-
-    Args:
-        provider: One of "google", "openai", or "mistral".
-        model: Optional provider model name override.
-
-    Returns:
-        A concrete `GeneralLLM` implementation.
-
-    Raises:
-        ValueError: If provider is unknown.
-    """
     normalized = provider.strip().lower()
 
     if normalized == "google":
@@ -182,26 +125,13 @@ def create_llm(provider: str, model: str | None = None) -> GeneralLLM:
 
 
 class Generator:
-    """High-level generator using the shared LLM interface.
-
-    This keeps generation logic provider-agnostic by delegating to `GeneralLLM`.
-    """
-
     def __init__(
         self,
         llm: GeneralLLM | None = None,
         provider: str = "openai",
         model: str | None = None,
     ):
-        """Initialize the generator with a concrete or provider-built LLM.
-
-        Args:
-            llm: Optional prebuilt LLM implementation for dependency injection.
-            provider: Provider name used when `llm` is not supplied.
-            model: Optional provider model override.
-        """
         self._llm = llm or create_llm(provider=provider, model=model)
 
     def generate(self, query: str, response_model: type[TModel] | None = None) -> str | TModel:
-        """Generate either free-form text or a structured Pydantic object."""
         return self._llm.generate(query=query, response_model=response_model)

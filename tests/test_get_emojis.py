@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from parser.get_emojis import (
+from doven_kalender.parser.get_emojis import (
     add_emojis_to_json,
     assign_emojis_to_entries,
     build_emoji_prompt,
@@ -48,7 +48,7 @@ class TestGetEmojis(unittest.TestCase):
         self.assertIn("Bøn", prompt)
         self.assertIn('{"emojis": ["😀", "🎉"]}', prompt)
 
-    @patch("parser.get_emojis.load_llm")
+    @patch("doven_kalender.parser.get_emojis.load_llm")
     def test_assign_emojis_to_entries_defaults_to_mistral(self, mock_load_llm) -> None:
         fake_llm = _FakeLLM('{"emojis": ["🎉", "🙏"]}')
         mock_load_llm.return_value = fake_llm
@@ -64,7 +64,7 @@ class TestGetEmojis(unittest.TestCase):
         self.assertIs(mock_load_llm.call_args.kwargs["env_file"], None)
         self.assertIsNone(fake_llm.calls[0][1])
 
-    @patch("parser.get_emojis.load_llm")
+    @patch("doven_kalender.parser.get_emojis.load_llm")
     def test_add_emojis_to_json_writes_updated_file(self, mock_load_llm) -> None:
         fake_llm = _FakeLLM('{"emojis": ["🎉"]}')
         mock_load_llm.return_value = fake_llm

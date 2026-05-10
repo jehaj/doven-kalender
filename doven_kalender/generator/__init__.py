@@ -1,4 +1,4 @@
-"""Generator package for doven-kalender."""
+"""Generator package for doven-kalender (packaged namespace)."""
 
 __all__ = ["generator", "poster", "compile_typst"]
 

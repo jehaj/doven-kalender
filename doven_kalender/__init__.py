@@ -9,21 +9,12 @@ import os
 import sys
 from typing import Any
 
-from generator.generator import Generator, create_llm
-from extractor.kalender import JSONType, get_events
-from parser.parser import EventParser, ParsedEvent
+from .generator.generator import Generator, create_llm
+from .extractor.kalender import JSONType, get_events
+from .parser.parser import EventParser, ParsedEvent
 
 
 def parse_event_with_llm(event: JSONType, provider: str = "openai") -> ParsedEvent:
-    """Parse a raw extracted event into a structured event model.
-
-    Args:
-        event: Event object from the extractor.
-        provider: LLM provider name (google, openai, mistral).
-
-    Returns:
-        Structured event data validated by Pydantic.
-    """
     if not isinstance(event, dict):
         raise TypeError("Expected event to be a dictionary-like object.")
 
@@ -33,15 +24,6 @@ def parse_event_with_llm(event: JSONType, provider: str = "openai") -> ParsedEve
 
 
 def generate_description(event: ParsedEvent, provider: str = "openai") -> str:
-    """Generate a human-readable social post description from parsed event data.
-
-    Args:
-        event: Parsed event model.
-        provider: LLM provider name (google, openai, mistral).
-
-    Returns:
-        Generated free-form post text.
-    """
     llm = create_llm(provider)
     generator = Generator(llm)
     prompt = (
@@ -59,24 +41,11 @@ def generate_description(event: ParsedEvent, provider: str = "openai") -> str:
 
 
 def weekday_name(weekday_index: int) -> str:
-    """Return Danish weekday name from zero-based weekday index.
-
-    Args:
-        weekday_index: Integer weekday index where 0 is Monday.
-
-    Returns:
-        Danish weekday name.
-    """
     names = ["mandag", "tirsdag", "onsdag", "torsdag", "fredag", "lørdag", "søndag"]
     return names[weekday_index]
 
 
 def main() -> int:
-    """Run the end-to-end extraction -> parsing -> generation orchestration.
-
-    Returns:
-        Process exit code.
-    """
     print("Doven Kalender")
 
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -97,5 +66,4 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+__all__ = ["main", "parse_event_with_llm", "generate_description", "weekday_name"]

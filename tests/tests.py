@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import requests
 from requests.exceptions import HTTPError, JSONDecodeError
 
-from extractor.kalender import get_events
+from doven_kalender.extractor.kalender import get_events
 
 try:
     from pydantic import BaseModel
@@ -17,8 +17,8 @@ else:
 
 if HAS_PYDANTIC:
     from doven_kalender import generate_description
-    from generator.generator import GeneralLLM, Generator, LLMError
-    from parser.parser import EventParser, ParsedEvent
+    from doven_kalender.generator.generator import GeneralLLM, Generator, LLMError
+    from doven_kalender.parser.parser import EventParser, ParsedEvent
 
 # A sample successful response from the Google Calendar API
 DUMMY_SUCCESS_RESPONSE = json.loads(r"""{
@@ -67,7 +67,7 @@ DUMMY_SUCCESS_RESPONSE = json.loads(r"""{
 
 
 class TestKalender(unittest.TestCase):
-    @patch("kalender.requests.get")
+    @patch("doven_kalender.extractor.kalender.requests.get")
     def test_get_events_success(self, mock_get):
         """Test get_events successfully retrieves and parses events."""
         mock_response = Mock()
@@ -90,7 +90,7 @@ class TestKalender(unittest.TestCase):
         self.assertIn("timeMin", called_params)
         self.assertIn("timeMax", called_params)
 
-    @patch("kalender.requests.get")
+    @patch("doven_kalender.extractor.kalender.requests.get")
     def test_get_events_http_error(self, mock_get):
         """Test get_events raises HTTPError on non-200 status."""
         mock_response = Mock()
@@ -100,7 +100,7 @@ class TestKalender(unittest.TestCase):
         with self.assertRaises(HTTPError):
             get_events("test_calendar", "test_api_key")
 
-    @patch("kalender.requests.get")
+    @patch("doven_kalender.extractor.kalender.requests.get")
     def test_get_events_network_error(self, mock_get):
         """Test get_events raises RequestException on network failure."""
         mock_get.side_effect = requests.exceptions.ConnectionError("Network is down")
@@ -108,7 +108,7 @@ class TestKalender(unittest.TestCase):
         with self.assertRaises(requests.exceptions.ConnectionError):
             get_events("test_calendar", "test_api_key")
 
-    @patch("kalender.requests.get")
+    @patch("doven_kalender.extractor.kalender.requests.get")
     def test_get_events_json_decode_error(self, mock_get):
         """Test get_events raises JSONDecodeError on invalid JSON response."""
         mock_response = Mock()

@@ -1,0 +1,18 @@
+{
+    "left": [
+        {
+            "date": "abc",
+            "emoji": "🐦",
+            "title": "def",
+            "description": "ghi"
+        }
+    ],
+    "right": [
+        {
+            "date": "jkl",
+            "emoji": "🚀",
+            "title": "mno",
+            "description": "pqr"
+        }
+    ]
+}

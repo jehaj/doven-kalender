@@ -7,4 +7,9 @@ dependencies = [
     "mistralai>=2.4.3",
     "openai>=2.32.0",
     "pydantic>=2.13.3",
+    "pytest>=9.0.3",
 ]
+
+[project.scripts]
+# Console entrypoint for running the CLI: `doven-kalender`
+doven-kalender = "doven_kalender:main"

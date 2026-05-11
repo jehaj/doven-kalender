@@ -1,6 +1,8 @@
 output.csv
 output.ods
 content.xml
+generator/*.pdf
+generator/*.jpg
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,pycharm,linux,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,pycharm,linux,windows,macos

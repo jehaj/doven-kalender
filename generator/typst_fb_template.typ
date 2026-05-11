@@ -1,6 +1,9 @@
 #let margin = 0cm
 #let background_enabled = true
 
+#let data = json("data.json")
+#let img_path_prefix = "f"
+
 #set page(
   paper: "a4",
   flipped: true,
@@ -22,8 +25,8 @@
 // $ vips linear "efterår blur.jpg" "efterår blur dark.jpg" 0.9 0
 
 #if background_enabled {
-  place(box(image("f.jpg", width: 29.7cm - 2*margin, height: 21cm - 2*margin)))
-  place(box(image("f blur dark.jpg", width: 29.7cm - 2*margin, height: 21cm - 2*margin), outset: (top: -4.5cm, right: -3.5cm, left: -3.5cm, bottom: -4cm), radius: 30pt, clip: true))
+  place(box(image(img_path_prefix + ".jpg", width: 29.7cm - 2*margin, height: 21cm - 2*margin)))
+  place(box(image(img_path_prefix + " blur dark.jpg", width: 29.7cm - 2*margin, height: 21cm - 2*margin), outset: (top: -4.5cm, right: -3.5cm, left: -3.5cm, bottom: -4cm), radius: 30pt, clip: true)) // todo fix this should be automated
 }
 
 // fix placement if emojies
@@ -40,6 +43,18 @@
   it
 }
 
+#let show_element = e => {
+  (
+    e.date,
+    e.emoji,
+    [#e.title #if e.description != "" {
+      v(-18pt)
+      set par(leading: 9pt)
+      text(size: 11pt, e.description)
+    }],
+  )
+}
+
 #box(
   width: 29.7cm - 2*margin, 
   height: 21cm - 2*margin, 
@@ -51,44 +66,20 @@
     column-gutter: 6pt,
     align: (right, left),
     grid(
-      columns: (2.5cm, 1.2cm, 1fr), 
+      columns: (2.5cm, 1.3cm, 1fr), 
       align: (right, center, left),
       row-gutter: 0.7cm,
-      [9\. apr],
-      [🎤],
-      [Lovsangsaften \ #text(size: 16pt, [Fælles med byens IMUer])],
-      [14\. apr],
-      [📖],
-      [#set par(leading: 11pt) 
-      Taleraften\ #text(size: 16pt, [Fælles med Reload ved \ *Leif Andersen*: Troshistorie])],
-      [16\. apr],
-      [#emoji.discoball],
-      [Socialaften],
-      [23\. apr],
-      [#emoji.house],
-      [#set par(leading: 11pt) 
-      Taleraften\ #text(size: 16pt, [*Peter Mikkelsen* »Menneskemøder i hverdagen«])],
-      [30\. apr],
-      [#emoji.house.multiple],
-      [Smågrupper],
+      .. for e in data.left {
+        show_element(e)
+      }
     ),
     grid(
-      columns: (2.5cm, 1.2cm, 1fr), 
+      columns: (2.5cm, 1.3cm, 1fr), 
       align: (right, center, left),
       row-gutter: 0.7cm,
-      [7\. maj],
-      [#emoji.book.open],
-      [Taleraften\ #text(size: 16pt, [Fælles med Reload])],
-      [14\. maj],
-      [#emoji.discoball],
-      [Socialaften \ #text(size: 16pt, [ved *Jakob Larsen*])],
-      [21\. maj],
-      [#emoji.house],
-      [#set par(leading: 11pt) 
-      Taleraften\ #text(size: 16pt, [*Irene Christiansen*]) \ #text(size: 11pt, [»Helbredelse---En personlig fortælling om Guds helbredende kraft«])],
-      [28\. maj],
-      [#emoji.house.multiple],
-      [Smågrupper],
+      .. for e in data.right {
+        show_element(e)
+      }
     ),
   )<ignore>
 ]

@@ -49,7 +49,7 @@ class TestGetEmojis(unittest.TestCase):
         self.assertIn('{"emojis": ["😀", "🎉"]}', prompt)
 
     @patch("doven_kalender.parser.get_emojis.load_llm")
-    def test_assign_emojis_to_entries_defaults_to_mistral(self, mock_load_llm) -> None:
+    def test_assign_emojis_to_entries_defaults_to_gemini(self, mock_load_llm) -> None:
         fake_llm = _FakeLLM('{"emojis": ["🎉", "🙏"]}')
         mock_load_llm.return_value = fake_llm
 
@@ -60,7 +60,7 @@ class TestGetEmojis(unittest.TestCase):
         self.assertEqual(result[0]["emoji"], "🎉")
         self.assertEqual(result[1]["emoji"], "🙏")
         mock_load_llm.assert_called_once()
-        self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "mistral")
+        self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "gemini")
         self.assertIs(mock_load_llm.call_args.kwargs["env_file"], None)
         self.assertIsNone(fake_llm.calls[0][1])
 
@@ -78,9 +78,9 @@ class TestGetEmojis(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            updated = add_emojis_to_json(input_path, output_path, provider="google")
+            updated = add_emojis_to_json(input_path, output_path, provider="gemini")
 
             self.assertEqual(updated["left"][0]["emoji"], "🎉")
             written = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(written["left"][0]["emoji"], "🎉")
-            self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "google")
+            self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "gemini")

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from abc import ABC, abstractmethod
+import os
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -58,39 +59,22 @@ class GeneralLLM(ABC):
         )
 
 
-class GoogleLLM(GeneralLLM):
-    """Google Gemini implementation of the GeneralLLM interface."""
+class GeminiLLM(GeneralLLM):
+    """Gemini implementation of the GeneralLLM interface."""
 
     def __init__(self, model: str = "gemini-2.5-flash"):
         try:
             from google import genai
         except ImportError as exc:
-            raise ImportError("google-genai is required for GoogleLLM.") from exc
+            raise ImportError("google-genai is required for GeminiLLM.") from exc
 
-        self._client = genai.Client()
+        google_api_key = os.getenv("GEMINI_KEY")
+        self._client = genai.Client(api_key=google_api_key)
         self._model = model
 
     def _generate_text(self, query: str) -> str:
         response = self._client.models.generate_content(model=self._model, contents=query)
         return response.text or ""
-
-
-class OpenAILLM(GeneralLLM):
-    def __init__(self, model: str = "gpt-4o"):
-        try:
-            from openai import OpenAI
-        except ImportError as exc:
-            raise ImportError("openai is required for OpenAILLM.") from exc
-
-        self._client = OpenAI()
-        self._model = model
-
-    def _generate_text(self, query: str) -> str:
-        response = self._client.chat.completions.create(
-            model=self._model,
-            messages=[{"role": "user", "content": query}],
-        )
-        return response.choices[0].message.content or ""
 
 
 class MistralLLM(GeneralLLM):
@@ -100,7 +84,8 @@ class MistralLLM(GeneralLLM):
         except ImportError as exc:
             raise ImportError("mistralai is required for MistralLLM.") from exc
 
-        self._client = Mistral()
+        mistral_api_key = os.getenv("MISTRAL_KEY")
+        self._client = Mistral(api_key=mistral_api_key)
         self._model = model
 
     def _generate_text(self, query: str) -> str:
@@ -114,10 +99,8 @@ class MistralLLM(GeneralLLM):
 def create_llm(provider: str, model: str | None = None) -> GeneralLLM:
     normalized = provider.strip().lower()
 
-    if normalized == "google":
-        return GoogleLLM(model=model or "gemini-2.5-flash")
-    if normalized == "openai":
-        return OpenAILLM(model=model or "gpt-4o")
+    if normalized == "gemini":
+        return GeminiLLM(model=model or "gemini-2.5-flash")
     if normalized == "mistral":
         return MistralLLM(model=model or "mistral-small-latest")
 
@@ -128,7 +111,7 @@ class Generator:
     def __init__(
         self,
         llm: GeneralLLM | None = None,
-        provider: str = "openai",
+        provider: str = "gemini",
         model: str | None = None,
     ):
         self._llm = llm or create_llm(provider=provider, model=model)

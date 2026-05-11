@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from doven_kalender.generator.generator import create_llm
 
-DEFAULT_PROVIDER = "mistral"
+DEFAULT_PROVIDER = "gemini"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 
@@ -53,11 +53,6 @@ def load_env_file(env_file: Path | None = None) -> bool:
         os.environ.setdefault(key, value)
 
     return True
-
-
-def load_llm(provider: str = DEFAULT_PROVIDER, model: str | None = None, env_file: Path | None = None) -> LazyEmojiLLM:
-    load_env_file(env_file)
-    return LazyEmojiLLM(provider=provider, model=model)
 
 
 def build_emoji_prompt(entries: Sequence[Mapping[str, Any]]) -> str:
@@ -164,7 +159,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input_json", type=Path, help="Path to the input calendar JSON file")
     parser.add_argument("output_json", nargs="?", type=Path, help="Optional output path; defaults to overwriting the input file")
-    parser.add_argument("--provider", choices=("mistral", "google"), default=DEFAULT_PROVIDER, help="LLM provider to use")
+    parser.add_argument("--provider", choices=("gemini", "mistral"), default=DEFAULT_PROVIDER, help="LLM provider to use")
     parser.add_argument("--model", help="Optional provider-specific model override")
     parser.add_argument("--env-file", type=Path, help="Optional path to the .env file")
     return parser.parse_args(argv)

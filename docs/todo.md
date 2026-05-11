@@ -1,10 +1,11 @@
-# work sheet
+# work sheet / todo list
 
 - [x] extractor
   - [x] pre-existing python script
 - [ ] parser
   - [x] llm parsing interface → json (shared LLM + pydantic schema)
-  - [ ] rule-based heuristics (since csv)
+  - [x] rule-based heuristics (since csv)
+    - [ ] llm emojis
 - [ ] integrator / generator
   - [ ] typst calendar
   - [x] shared LLM abstraction wired in generator

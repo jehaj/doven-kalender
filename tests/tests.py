@@ -201,7 +201,7 @@ if HAS_PYDANTIC:
                 end_time="2026-04-27T21:00:00+02:00",
             )
 
-            text = generate_description(event, provider="openai")
+            text = generate_description(event, provider="gemini")
 
             self.assertEqual(text, "Generated post")
             self.assertIn("Facebook announcement", fake_llm.last_query)

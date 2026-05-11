@@ -23,8 +23,21 @@ Alle LLM-kald kan modtage en valgfri `response_model` (Pydantic-model):
 ### Environment variables
 
 - `GOOGLE_API_KEY`: API key til kalender extraction.
-- `DOVEN_LLM_PROVIDER`: `google`, `openai` eller `mistral` (default: `openai`).
+- `DOVEN_LLM_PROVIDER`: `gemini` eller `mistral` (default: `gemini`).
 - `GOOGLE_CALENDAR_ID`: Kalender-id (uden `@group.calendar.google.com`).
+- `DOCS_COOKIE`: Browser cookie value needed to download the protected PU ODT export.
+
+### PU pipeline
+
+The calendar-to-JSON pipeline lives under [scripts/](scripts/) and is exposed as a console command through [pyproject.toml](pyproject.toml).
+
+Run it with:
+
+```bash
+uv run pu-pipeline maj juni
+```
+
+It reads `DOCS_DOCUMENT_URL` from [.env](.env), downloads the ODT export, writes the intermediate CSV, then produces the emoji-enriched JSON output.
 
 ## Opgaveliste
 

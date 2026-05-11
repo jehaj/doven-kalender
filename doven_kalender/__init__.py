@@ -14,7 +14,7 @@ from .extractor.kalender import JSONType, get_events
 from .parser.parser import EventParser, ParsedEvent
 
 
-def parse_event_with_llm(event: JSONType, provider: str = "openai") -> ParsedEvent:
+def parse_event_with_llm(event: JSONType, provider: str = "gemini") -> ParsedEvent:
     if not isinstance(event, dict):
         raise TypeError("Expected event to be a dictionary-like object.")
 
@@ -23,7 +23,7 @@ def parse_event_with_llm(event: JSONType, provider: str = "openai") -> ParsedEve
     return parser.parse_event(event, response_model=ParsedEvent)
 
 
-def generate_description(event: ParsedEvent, provider: str = "openai") -> str:
+def generate_description(event: ParsedEvent, provider: str = "gemini") -> str:
     llm = create_llm(provider)
     generator = Generator(llm)
     prompt = (
@@ -53,7 +53,7 @@ def main() -> int:
         print("Error: GOOGLE_API_KEY environment variable not set.", file=sys.stderr)
         return 1
 
-    provider = os.getenv("DOVEN_LLM_PROVIDER", "openai")
+    provider = os.getenv("DOVEN_LLM_PROVIDER", "gemini")
     calendar_id = os.getenv("GOOGLE_CALENDAR_ID", "fj88e45fvuj2hfhl3n1g0mlkus")
     events = get_events(calendar_id, api_key)
     if not events:

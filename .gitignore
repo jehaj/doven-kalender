@@ -3,6 +3,9 @@ output.ods
 content.xml
 generator/*.pdf
 generator/*.jpg
+generator/*.png
+*.ods
+*.odt
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,pycharm,linux,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,pycharm,linux,windows,macos

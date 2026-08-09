@@ -16,6 +16,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 DEFAULT_CSV_FILE = PROJECT_ROOT / "assets" / "output.csv"
 DEFAULT_JSON_FILE = PROJECT_ROOT / "generator" / "data.json"
+DEFAULT_ODT_FILE = PROJECT_ROOT / "assets" / "E26.docx.odt"
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -24,6 +25,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("right_month", help="Month name for the right side, for example 'juni'")
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV_FILE, help="Path to the intermediate CSV output")
     parser.add_argument("--json", type=Path, default=DEFAULT_JSON_FILE, help="Path to the emoji-enriched JSON output")
+    parser.add_argument("--odt", "--odt-file", type=Path, default=None, help="Path to a local ODT document")
     parser.add_argument("--document-url", help="Override DOCS_DOCUMENT_URL from .env")
     parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE, help="Path to the .env file")
     parser.add_argument("--provider", choices=("gemini", "mistral"), default="gemini", help="LLM provider for emoji assignment")
@@ -31,16 +33,42 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def resolve_document_source(args: argparse.Namespace) -> Path | str | None:
+    if args.odt is not None:
+        return args.odt
+    if args.document_url:
+        return args.document_url
+
+    env_odt = os.getenv("DOCS_ODT_FILE")
+    if env_odt:
+        return Path(env_odt)
+
+    if DEFAULT_ODT_FILE.exists():
+        return DEFAULT_ODT_FILE
+
+    assets_dir = PROJECT_ROOT / "assets"
+    if assets_dir.exists():
+        odt_files = sorted(assets_dir.glob("*.odt"))
+        if odt_files:
+            return odt_files[0]
+
+    env_url = os.getenv("DOCS_DOCUMENT_URL")
+    if env_url:
+        return env_url
+
+    return None
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     load_env_file(args.env_file)
 
-    document_url = args.document_url or os.getenv("DOCS_DOCUMENT_URL")
-    if not document_url:
-        print("Error: DOCS_DOCUMENT_URL environment variable not set.", file=sys.stderr)
+    document_source = resolve_document_source(args)
+    if not document_source:
+        print("Error: No ODT document source found (set DOCS_ODT_FILE, DOCS_DOCUMENT_URL, or provide assets/*.odt).", file=sys.stderr)
         return 1
 
-    extract_csv_from_odt(document_url, args.csv)
+    extract_csv_from_odt(document_source, args.csv)
     convert_csv_to_json(args.csv, args.json, args.left_month, args.right_month)
     add_emojis_to_json(args.json, provider=args.provider, model=args.model, env_file=args.env_file)
 

@@ -2,7 +2,17 @@
 #let background_enabled = true
 
 #let data = json("data.json")
-#let img_path_prefix = "f"
+#let img_path_prefix = "pic"
+
+#let months_title = if "months" in data {
+  data.months
+} else if "title" in data {
+  data.title
+} else if "left_month" in data and "right_month" in data {
+  data.left_month + " & " + data.right_month
+} else {
+  "April & Maj"
+}
 
 #set page(
   paper: "a4",
@@ -20,9 +30,7 @@
   size: 24pt,
 )
 
-// Lav billederne med vips
-// $ vips gaussblur efterår.jpg "efterår blur.jpg" 40
-// $ vips linear "efterår blur.jpg" "efterår blur dark.jpg" 0.9 0
+// Lav billederne med prepare_image.sh scriptet, som laver blur og mørkere versioner af billedet.
 
 #if background_enabled {
   place(box(image(img_path_prefix + ".jpg", width: 29.7cm - 2*margin, height: 21cm - 2*margin)))
@@ -59,7 +67,7 @@
   width: 29.7cm - 2*margin, 
   height: 21cm - 2*margin, 
   inset: (x: 3.8cm, y: 3cm))[
-  #align(center, text(size: 42pt, smallcaps[*April & Maj*]))
+  #align(center, text(size: 42pt, smallcaps[*#months_title*]))
   #v(-0.5cm)
   #grid(
     columns: (1fr, 1fr),
@@ -87,5 +95,5 @@
 #import "@preview/tiaoma:0.3.0": qrcode, micro-qr
 
 
-#place(right, dy:-3.7cm, dx:-0.7cm, [#place(dy: 64pt, dx: -4.6cm)[F26 program] #box(radius: 12pt, clip: true, inset: 6pt, fill: white, qrcode("https://docs.google.com/document/d/1EbI4ZyldB06EyZN_f0kKo4fRHxHSVXa8/edit", options: (scale: 1.5, fg-color: qr_color)))])
+#place(right, dy:-3.7cm, dx:-0.7cm, [#place(dy: 64pt, dx: -4.6cm)[E26 program] #box(radius: 12pt, clip: true, inset: 6pt, fill: white, qrcode("https://docs.google.com/document/d/1Q0a5lNur4xGYu4U55zu0fPPnNbwAqoWH/edit", options: (scale: 1.5, fg-color: qr_color)))])
 

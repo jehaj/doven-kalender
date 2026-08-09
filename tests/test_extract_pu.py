@@ -71,3 +71,19 @@ def test_extract_csv_from_odt_writes_csv(mock_urlopen, tmp_path) -> None:
 
     assert rows[0][:3] == ["Dato", "Titel", "Emne/aktivitet"]
     assert rows[1][:3] == ["8. januar", "Nytårskur", "Fællesspisning v. Fred"]
+
+
+def test_extract_csv_from_odt_local_file(tmp_path) -> None:
+    content_xml = Path("assets/content.xml").read_text(encoding="utf-8")
+    odt_path = tmp_path / "test.odt"
+    odt_path.write_bytes(_build_odt_bytes(content_xml))
+
+    csv_path = tmp_path / "output.csv"
+    written_path = extract_csv_from_odt(odt_path, csv_path)
+
+    assert written_path == csv_path
+    with csv_path.open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.reader(handle))
+
+    assert rows[0][:3] == ["Dato", "Titel", "Emne/aktivitet"]
+    assert rows[1][:3] == ["8. januar", "Nytårskur", "Fællesspisning v. Fred"]

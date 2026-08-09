@@ -66,16 +66,27 @@ def download_odt(document_url: str, timeout: float = 30.0) -> bytes:
     if not cookie:
         raise ValueError("DOCS_COOKIE environment variable is required to download the PU document")
 
+    cleaned_cookie = cookie.encode("latin-1", "ignore").decode("latin-1")
     request = urllib.request.Request(
         document_url,
-        headers={"User-Agent": "Mozilla/5.0", "Cookie": cookie},
+        headers={"User-Agent": "Mozilla/5.0", "Cookie": cleaned_cookie},
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return response.read()
 
 
-def extract_csv_from_odt(document_url: str, csv_file: Path, timeout: float = 30.0) -> Path:
-    rows = odt_bytes_to_rows(download_odt(document_url, timeout=timeout))
+def extract_csv_from_odt(document_source: str | Path, csv_file: Path, timeout: float = 30.0) -> Path:
+    source_path = Path(document_source) if isinstance(document_source, (str, Path)) else None
+    if source_path is not None and source_path.exists() and source_path.is_file():
+        odt_bytes = source_path.read_bytes()
+    elif isinstance(document_source, str) and document_source.startswith(("http://", "https://")):
+        odt_bytes = download_odt(document_source, timeout=timeout)
+    elif source_path is not None and not isinstance(document_source, str):
+        odt_bytes = source_path.read_bytes()
+    else:
+        odt_bytes = download_odt(str(document_source), timeout=timeout)
+
+    rows = odt_bytes_to_rows(odt_bytes)
     if not rows:
         raise ValueError("ODT document did not contain any table rows")
 

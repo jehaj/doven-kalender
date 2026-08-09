@@ -11,11 +11,17 @@ from typing import Any
 from doven_kalender.generator.generator import create_llm
 
 DEFAULT_PROVIDER = "gemini"
+DEFAULT_TEMPERATURE = 1.3
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
 
 
-def load_llm(provider: str = DEFAULT_PROVIDER, model: str | None = None, env_file: Path | None = None) -> Any:
+def load_llm(
+    provider: str = DEFAULT_PROVIDER,
+    model: str | None = None,
+    env_file: Path | None = None,
+    temperature: float | None = DEFAULT_TEMPERATURE,
+) -> Any:
     """Compatibility wrapper that creates a provider client.
 
     Loads a local `.env` file (if provided) then returns a concrete LLM
@@ -23,7 +29,7 @@ def load_llm(provider: str = DEFAULT_PROVIDER, model: str | None = None, env_fil
     """
 
     load_env_file(env_file)
-    return create_llm(provider, model)
+    return create_llm(provider, model, temperature=temperature)
 
 
 def load_env_file(env_file: Path | None = None) -> bool:
@@ -57,7 +63,8 @@ def load_env_file(env_file: Path | None = None) -> bool:
 
 def build_emoji_prompt(entries: Sequence[Mapping[str, Any]]) -> str:
     lines = [
-        "Assign one relevant emoji to each calendar entry.",
+        "Assign one relevant, creative, and distinct emoji to each calendar entry.",
+        "Use a diverse variety of emojis and avoid repeating the same emoji across entries.",
         "Return valid JSON only in this exact shape:",
         '{"emojis": ["😀", "🎉"]}',
         "Use exactly one emoji per entry and keep the same order as the input.",
@@ -100,12 +107,13 @@ def assign_emojis_to_entries(
     provider: str = DEFAULT_PROVIDER,
     model: str | None = None,
     env_file: Path | None = None,
+    temperature: float | None = DEFAULT_TEMPERATURE,
 ) -> list[dict[str, Any]]:
     entries_list = [dict(entry) for entry in entries]
     if not entries_list:
         return entries_list
 
-    llm = load_llm(provider=provider, model=model, env_file=env_file)
+    llm = load_llm(provider=provider, model=model, env_file=env_file, temperature=temperature)
     emojis = extract_emoji_list(llm.generate(build_emoji_prompt(entries_list)))
     if len(emojis) != len(entries_list):
         raise ValueError("LLM returned a different number of emojis than input entries")
@@ -121,12 +129,19 @@ def assign_emojis_to_calendar(
     provider: str = DEFAULT_PROVIDER,
     model: str | None = None,
     env_file: Path | None = None,
+    temperature: float | None = DEFAULT_TEMPERATURE,
 ) -> dict[str, Any]:
     updated: dict[str, Any] = dict(data)
     for side in ("left", "right"):
         entries = data.get(side, [])
         if isinstance(entries, Sequence):
-            updated[side] = assign_emojis_to_entries(entries, provider=provider, model=model, env_file=env_file)
+            updated[side] = assign_emojis_to_entries(
+                entries,
+                provider=provider,
+                model=model,
+                env_file=env_file,
+                temperature=temperature,
+            )
     return updated
 
 
@@ -154,9 +169,16 @@ def add_emojis_to_json(
     provider: str = DEFAULT_PROVIDER,
     model: str | None = None,
     env_file: Path | None = None,
+    temperature: float | None = DEFAULT_TEMPERATURE,
 ) -> dict[str, Any]:
     calendar_data = read_calendar_json(input_json)
-    updated_data = assign_emojis_to_calendar(calendar_data, provider=provider, model=model, env_file=env_file)
+    updated_data = assign_emojis_to_calendar(
+        calendar_data,
+        provider=provider,
+        model=model,
+        env_file=env_file,
+        temperature=temperature,
+    )
     destination = output_json or input_json
     write_calendar_json(destination, updated_data)
     return updated_data
@@ -168,6 +190,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("output_json", nargs="?", type=Path, help="Optional output path; defaults to overwriting the input file")
     parser.add_argument("--provider", choices=("gemini", "mistral"), default=DEFAULT_PROVIDER, help="LLM provider to use")
     parser.add_argument("--model", help="Optional provider-specific model override")
+    parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE, help="LLM sampling temperature for emoji assignment")
     parser.add_argument("--env-file", type=Path, help="Optional path to the .env file")
     return parser.parse_args(argv)
 
@@ -179,6 +202,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_json=args.output_json,
         provider=args.provider,
         model=args.model,
+        temperature=args.temperature,
         env_file=args.env_file,
     )
     return 0

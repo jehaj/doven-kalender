@@ -62,6 +62,7 @@ class TestGetEmojis(unittest.TestCase):
         mock_load_llm.assert_called_once()
         self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "gemini")
         self.assertIs(mock_load_llm.call_args.kwargs["env_file"], None)
+        self.assertEqual(mock_load_llm.call_args.kwargs["temperature"], 1.3)
         self.assertIsNone(fake_llm.calls[0][1])
 
     @patch("doven_kalender.parser.get_emojis.load_llm")

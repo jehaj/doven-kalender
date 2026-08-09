@@ -30,6 +30,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--env-file", type=Path, default=DEFAULT_ENV_FILE, help="Path to the .env file")
     parser.add_argument("--provider", choices=("gemini", "mistral"), default="gemini", help="LLM provider for emoji assignment")
     parser.add_argument("--model", help="Optional provider-specific model override")
+    parser.add_argument("--temperature", type=float, default=None, help="Optional LLM temperature override")
     return parser.parse_args(argv)
 
 
@@ -70,7 +71,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     extract_csv_from_odt(document_source, args.csv)
     convert_csv_to_json(args.csv, args.json, args.left_month, args.right_month)
-    add_emojis_to_json(args.json, provider=args.provider, model=args.model, env_file=args.env_file)
+    kwargs = {"provider": args.provider, "model": args.model, "env_file": args.env_file}
+    if args.temperature is not None:
+        kwargs["temperature"] = args.temperature
+    add_emojis_to_json(args.json, **kwargs)
 
     print(f"Wrote CSV to {args.csv}")
     print(f"Wrote emoji-enriched JSON to {args.json}")

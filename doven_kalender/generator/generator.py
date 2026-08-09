@@ -62,7 +62,7 @@ class GeneralLLM(ABC):
 class GeminiLLM(GeneralLLM):
     """Gemini implementation of the GeneralLLM interface."""
 
-    def __init__(self, model: str = "gemini-2.5-flash"):
+    def __init__(self, model: str = "gemini-2.5-flash", temperature: float | None = None):
         try:
             from google import genai
         except ImportError as exc:
@@ -71,14 +71,20 @@ class GeminiLLM(GeneralLLM):
         google_api_key = os.getenv("GEMINI_KEY")
         self._client = genai.Client(api_key=google_api_key)
         self._model = model
+        self._temperature = temperature
 
     def _generate_text(self, query: str) -> str:
-        response = self._client.models.generate_content(model=self._model, contents=query)
+        config = {"temperature": self._temperature} if self._temperature is not None else None
+        response = self._client.models.generate_content(
+            model=self._model,
+            contents=query,
+            config=config,
+        )
         return response.text or ""
 
 
 class MistralLLM(GeneralLLM):
-    def __init__(self, model: str = "mistral-small-latest"):
+    def __init__(self, model: str = "mistral-small-latest", temperature: float | None = None):
         try:
             from mistralai import Mistral
         except ImportError as exc:
@@ -87,22 +93,27 @@ class MistralLLM(GeneralLLM):
         mistral_api_key = os.getenv("MISTRAL_KEY")
         self._client = Mistral(api_key=mistral_api_key)
         self._model = model
+        self._temperature = temperature
 
     def _generate_text(self, query: str) -> str:
-        response = self._client.chat.complete(
-            model=self._model,
-            messages=[{"role": "user", "content": query}],
-        )
+        kwargs: dict[str, Any] = {
+            "model": self._model,
+            "messages": [{"role": "user", "content": query}],
+        }
+        if self._temperature is not None:
+            kwargs["temperature"] = self._temperature
+
+        response = self._client.chat.complete(**kwargs)
         return response.choices[0].message.content or ""
 
 
-def create_llm(provider: str, model: str | None = None) -> GeneralLLM:
+def create_llm(provider: str, model: str | None = None, temperature: float | None = None) -> GeneralLLM:
     normalized = provider.strip().lower()
 
     if normalized == "gemini":
-        return GeminiLLM(model=model or "gemini-2.5-flash")
+        return GeminiLLM(model=model or "gemini-2.5-flash", temperature=temperature)
     if normalized == "mistral":
-        return MistralLLM(model=model or "mistral-small-latest")
+        return MistralLLM(model=model or "mistral-small-latest", temperature=temperature)
 
     raise ValueError(f"Unsupported LLM provider: {provider}")
 

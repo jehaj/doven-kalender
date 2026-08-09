@@ -51,6 +51,9 @@ class TestCsvToJsonConversion(unittest.TestCase):
             self.assertEqual(
                 result,
                 {
+                    "months": "Juli & August",
+                    "left_month": "Juli",
+                    "right_month": "August",
                     "left": [
                         {
                             "date": "8. jul",

@@ -116,27 +116,34 @@ def assign_emojis_to_entries(
     return entries_list
 
 
-def assign_emojis_to_calendar(data: Mapping[str, Sequence[Mapping[str, Any]]], provider: str = DEFAULT_PROVIDER, model: str | None = None, env_file: Path | None = None) -> dict[str, list[dict[str, Any]]]:
-    return {
-        side: assign_emojis_to_entries(entries, provider=provider, model=model, env_file=env_file)
-        for side, entries in data.items()
-    }
+def assign_emojis_to_calendar(
+    data: Mapping[str, Any],
+    provider: str = DEFAULT_PROVIDER,
+    model: str | None = None,
+    env_file: Path | None = None,
+) -> dict[str, Any]:
+    updated: dict[str, Any] = dict(data)
+    for side in ("left", "right"):
+        entries = data.get(side, [])
+        if isinstance(entries, Sequence):
+            updated[side] = assign_emojis_to_entries(entries, provider=provider, model=model, env_file=env_file)
+    return updated
 
 
-def read_calendar_json(json_file: Path) -> dict[str, list[dict[str, Any]]]:
+def read_calendar_json(json_file: Path) -> dict[str, Any]:
     with json_file.open(encoding="utf-8") as handle:
         data = json.load(handle)
 
     if not isinstance(data, dict):
         raise TypeError("Calendar JSON must contain an object at the top level")
 
-    return {
-        "left": [dict(entry) for entry in data.get("left", [])],
-        "right": [dict(entry) for entry in data.get("right", [])],
-    }
+    result = dict(data)
+    result["left"] = [dict(entry) for entry in data.get("left", [])]
+    result["right"] = [dict(entry) for entry in data.get("right", [])]
+    return result
 
 
-def write_calendar_json(json_file: Path, data: Mapping[str, Sequence[Mapping[str, Any]]]) -> None:
+def write_calendar_json(json_file: Path, data: Mapping[str, Any]) -> None:
     with json_file.open("w", encoding="utf-8") as handle:
         json.dump(data, handle, ensure_ascii=False, indent=4)
 
@@ -147,7 +154,7 @@ def add_emojis_to_json(
     provider: str = DEFAULT_PROVIDER,
     model: str | None = None,
     env_file: Path | None = None,
-) -> dict[str, list[dict[str, Any]]]:
+) -> dict[str, Any]:
     calendar_data = read_calendar_json(input_json)
     updated_data = assign_emojis_to_calendar(calendar_data, provider=provider, model=model, env_file=env_file)
     destination = output_json or input_json

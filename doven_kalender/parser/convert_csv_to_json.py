@@ -26,6 +26,20 @@ MONTH_NAME_TO_ABBR = {
 }
 
 MONTH_ABBRS = set(MONTH_NAME_TO_ABBR.values())
+ABBR_TO_MONTH_NAME = {
+    "jan": "Januar",
+    "feb": "Februar",
+    "mar": "Marts",
+    "apr": "April",
+    "maj": "Maj",
+    "jun": "Juni",
+    "jul": "Juli",
+    "aug": "August",
+    "sep": "September",
+    "okt": "Oktober",
+    "nov": "November",
+    "dec": "December",
+}
 DATE_PATTERN = re.compile(r"(\d+)\s*\.?\s*([^\W\d_]+)", re.UNICODE)
 
 
@@ -43,6 +57,13 @@ def normalize_month_name(month_name: str) -> str | None:
         return normalized_month
 
     return MONTH_NAME_TO_ABBR.get(normalized_month)
+
+
+def format_month_display(month_name: str) -> str:
+    abbr = normalize_month_name(month_name)
+    if abbr and abbr in ABBR_TO_MONTH_NAME:
+        return ABBR_TO_MONTH_NAME[abbr]
+    return month_name.strip().capitalize()
 
 
 def normalize_date(date_text: str) -> str:
@@ -94,7 +115,15 @@ def convert_csv_to_json(
     if left_month_abbr == right_month_abbr:
         raise ValueError("left_month and right_month must refer to different months")
 
-    data = {"left": [], "right": []}
+    left_display = format_month_display(left_month)
+    right_display = format_month_display(right_month)
+    data = {
+        "months": f"{left_display} & {right_display}",
+        "left_month": left_display,
+        "right_month": right_display,
+        "left": [],
+        "right": [],
+    }
     with csv_file.open(newline="", encoding="utf-8") as csv_handle:
         reader = csv.DictReader(csv_handle)
         for row in reader:

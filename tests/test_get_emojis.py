@@ -84,3 +84,29 @@ class TestGetEmojis(unittest.TestCase):
             written = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(written["left"][0]["emoji"], "🎉")
             self.assertEqual(mock_load_llm.call_args.kwargs["provider"], "gemini")
+
+    @patch("doven_kalender.parser.get_emojis.load_llm")
+    def test_add_emojis_to_json_preserves_metadata(self, mock_load_llm) -> None:
+        fake_llm = _FakeLLM('{"emojis": ["🎉"]}')
+        mock_load_llm.return_value = fake_llm
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            input_path = temp_path / "input.json"
+            input_path.write_text(
+                json.dumps({
+                    "months": "August & September",
+                    "left_month": "August",
+                    "right_month": "September",
+                    "left": [{"title": "Sommerfest", "description": "Aften", "emoji": None}],
+                    "right": [],
+                }),
+                encoding="utf-8",
+            )
+
+            updated = add_emojis_to_json(input_path, provider="gemini")
+
+            self.assertEqual(updated["months"], "August & September")
+            self.assertEqual(updated["left_month"], "August")
+            self.assertEqual(updated["right_month"], "September")
+            self.assertEqual(updated["left"][0]["emoji"], "🎉")

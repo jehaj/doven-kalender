@@ -1,0 +1,22 @@
+[project]
+name = "doven-kalender"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "google-genai>=1.73.1",
+    "mistralai>=2.4.3",
+    "pydantic>=2.13.3",
+    "pytest>=9.0.3",
+]
+
+[project.scripts]
+# Console entrypoint for running the CLI: `doven-kalender`
+doven-kalender = "doven_kalender:main"
+pu-pipeline = "scripts.pu_calendar_pipeline:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = { find = { where = ["."], include = ["doven_kalender*", "scripts*"] } }

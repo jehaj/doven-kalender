@@ -55,7 +55,8 @@
   (
     e.date,
     e.emoji,
-    [#e.title #if e.description != "" {
+    [#set par(leading: 6pt)
+      #e.title #if e.description != "" {
       v(-18pt)
       set par(leading: 9pt)
       text(size: 11pt, e.description)

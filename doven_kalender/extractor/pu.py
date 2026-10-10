@@ -71,21 +71,27 @@ def download_odt(document_url: str, timeout: float = 30.0) -> bytes:
         document_url,
         headers={"User-Agent": "Mozilla/5.0", "Cookie": cleaned_cookie},
     )
+    print(f"Downloading ODT document from URL: '{document_url}' (timeout={timeout}s)...", flush=True)
     with urllib.request.urlopen(request, timeout=timeout) as response:
-        return response.read()
+        content = response.read()
+    print(f"Downloaded {len(content)} bytes of ODT data.", flush=True)
+    return content
 
 
 def extract_csv_from_odt(document_source: str | Path, csv_file: Path, timeout: float = 30.0) -> Path:
     source_path = Path(document_source) if isinstance(document_source, (str, Path)) else None
     if source_path is not None and source_path.exists() and source_path.is_file():
+        print(f"Reading local ODT file from '{source_path}'...", flush=True)
         odt_bytes = source_path.read_bytes()
     elif isinstance(document_source, str) and document_source.startswith(("http://", "https://")):
         odt_bytes = download_odt(document_source, timeout=timeout)
     elif source_path is not None and not isinstance(document_source, str):
+        print(f"Reading local ODT file from '{source_path}'...", flush=True)
         odt_bytes = source_path.read_bytes()
     else:
         odt_bytes = download_odt(str(document_source), timeout=timeout)
 
+    print("Parsing table rows from ODT content.xml...", flush=True)
     rows = odt_bytes_to_rows(odt_bytes)
     if not rows:
         raise ValueError("ODT document did not contain any table rows")
@@ -95,4 +101,5 @@ def extract_csv_from_odt(document_source: str | Path, csv_file: Path, timeout: f
         writer = csv.writer(handle)
         writer.writerows(rows)
 
+    print(f"Extracted {len(rows)} table rows into '{csv_file}'.", flush=True)
     return csv_file

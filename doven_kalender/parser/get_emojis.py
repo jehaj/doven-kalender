@@ -113,14 +113,18 @@ def assign_emojis_to_entries(
     if not entries_list:
         return entries_list
 
+    print(f"Calling LLM provider '{provider}' to assign emojis for {len(entries_list)} entries...", flush=True)
     llm = load_llm(provider=provider, model=model, env_file=env_file, temperature=temperature)
-    emojis = extract_emoji_list(llm.generate(build_emoji_prompt(entries_list)))
+    raw_response = llm.generate(build_emoji_prompt(entries_list))
+    print(f"Parsing emoji response from {provider}...", flush=True)
+    emojis = extract_emoji_list(raw_response)
     if len(emojis) != len(entries_list):
         raise ValueError("LLM returned a different number of emojis than input entries")
 
     for entry, emoji in zip(entries_list, emojis, strict=True):
         entry["emoji"] = emoji
 
+    print(f"Successfully assigned {len(emojis)} emojis.", flush=True)
     return entries_list
 
 
@@ -134,7 +138,12 @@ def assign_emojis_to_calendar(
     updated: dict[str, Any] = dict(data)
     for side in ("left", "right"):
         entries = data.get(side, [])
+        month_label = data.get(f"{side}_month", side)
         if isinstance(entries, Sequence):
+            if not entries:
+                print(f"No entries found for {side} month ('{month_label}'), skipping emoji assignment.", flush=True)
+                continue
+            print(f"Assigning emojis for {side} month ('{month_label}', {len(entries)} entries)...", flush=True)
             updated[side] = assign_emojis_to_entries(
                 entries,
                 provider=provider,

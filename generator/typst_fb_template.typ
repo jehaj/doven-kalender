@@ -27,7 +27,7 @@
 #set text(
   lang: "da",
   fill: text_color,
-  size: 24pt,
+  size: 20pt,
 )
 
 // Lav billederne med prepare_image.sh scriptet, som laver blur og mørkere versioner af billedet.

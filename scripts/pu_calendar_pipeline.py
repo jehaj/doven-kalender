@@ -62,22 +62,36 @@ def resolve_document_source(args: argparse.Namespace) -> Path | str | None:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    print(f"Starting PU calendar pipeline for '{args.left_month}' and '{args.right_month}'...", flush=True)
     load_env_file(args.env_file)
 
     document_source = resolve_document_source(args)
     if not document_source:
-        print("Error: No ODT document source found (set DOCS_ODT_FILE, DOCS_DOCUMENT_URL, or provide assets/*.odt).", file=sys.stderr)
+        print("Error: No ODT document source found (set DOCS_ODT_FILE, DOCS_DOCUMENT_URL, or provide assets/*.odt).", file=sys.stderr, flush=True)
         return 1
 
+    if isinstance(document_source, Path) or (
+        isinstance(document_source, str) and not document_source.startswith(("http://", "https://"))
+    ):
+        print(f"Using local ODT file: '{document_source}'", flush=True)
+    else:
+        print(f"Using remote document URL: '{document_source}'", flush=True)
+
+    print(f"Extracting table data to CSV ({args.csv})...", flush=True)
     extract_csv_from_odt(document_source, args.csv)
+
+    print(f"Converting CSV to JSON ({args.json}) for months '{args.left_month}' & '{args.right_month}'...", flush=True)
     convert_csv_to_json(args.csv, args.json, args.left_month, args.right_month)
+
+    print(f"Enriching calendar with emojis using LLM provider '{args.provider}'...", flush=True)
     kwargs = {"provider": args.provider, "model": args.model, "env_file": args.env_file}
     if args.temperature is not None:
         kwargs["temperature"] = args.temperature
     add_emojis_to_json(args.json, **kwargs)
 
-    print(f"Wrote CSV to {args.csv}")
-    print(f"Wrote emoji-enriched JSON to {args.json}")
+    print(f"Wrote CSV to {args.csv}", flush=True)
+    print(f"Wrote emoji-enriched JSON to {args.json}", flush=True)
+    print("Done! Pipeline completed successfully.", flush=True)
     return 0
 
 

@@ -117,6 +117,7 @@ def convert_csv_to_json(
 
     left_display = format_month_display(left_month)
     right_display = format_month_display(right_month)
+    print(f"Reading CSV '{csv_file}' and filtering entries for '{left_display}' and '{right_display}'...", flush=True)
     data = {
         "months": f"{left_display} & {right_display}",
         "left_month": left_display,
@@ -145,6 +146,11 @@ def convert_csv_to_json(
 
     with json_file.open("w", encoding="utf-8") as json_handle:
         json.dump(data, json_handle, ensure_ascii=False, indent=4)
+
+    print(
+        f"Matched {len(data['left'])} entries for '{left_display}' and {len(data['right'])} entries for '{right_display}' (saved to '{json_file}').",
+        flush=True,
+    )
 
 
 def parse_args(argv: Sequence[str]) -> argparse.Namespace:

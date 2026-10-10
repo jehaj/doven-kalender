@@ -62,7 +62,7 @@ class GeneralLLM(ABC):
 class GeminiLLM(GeneralLLM):
     """Gemini implementation of the GeneralLLM interface."""
 
-    def __init__(self, model: str = "gemini-2.5-flash", temperature: float | None = None):
+    def __init__(self, model: str = "gemini-3.8-flash", temperature: float | None = None):
         try:
             from google import genai
         except ImportError as exc:
@@ -111,7 +111,7 @@ def create_llm(provider: str, model: str | None = None, temperature: float | Non
     normalized = provider.strip().lower()
 
     if normalized == "gemini":
-        return GeminiLLM(model=model or "gemini-2.5-flash", temperature=temperature)
+        return GeminiLLM(model=model or "gemini-3.8-flash", temperature=temperature)
     if normalized == "mistral":
         return MistralLLM(model=model or "mistral-small-latest", temperature=temperature)
 

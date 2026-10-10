@@ -1,10 +1,14 @@
 # doven-kalender
 
-Automatiske opslag på Facebook genereret med en LLM ud fra den offentlige IMU kalenderen.
+Generering af opslag ud fra den offentlige IMU-kalender ved hjælp af en LLM.
+
+> **Status på Facebook-integration:**
+> Slutmålet for projektet er automatiske opslag på Facebook genereret ud fra kalenderen. Direkte Facebook-opslag er dog i øjeblikket sat på pause, da det ikke er umiddelbart gennemførligt at poste automatisk i en Facebook-gruppe med en bot, og en holdbar løsning er endnu ikke fastlagt.
+> En retning der arbejdes hen imod er i stedet at maile det genererede opslag til en person (f.eks. mødelederen), som kan verificere indholdet og selv foretage opslaget på Facebook.
 
 Der er beskrevet mere om projektets struktur i ARCHITECTURE.md.
 
-Tests kan køres med unittest modulet med
+Tests kan køres med unittest modulet med:
 
 ```bash
 python3 -m unittest discover tests
@@ -52,3 +56,4 @@ It reads `DOCS_DOCUMENT_URL` from [.env](.env), downloads the ODT export, writes
       Vi bruger `.env` filen til at gemme hemmeligheder. Det betyder, at man
       enten kan give programmet miljøvariabler, ellers læser den fra filen.
       Se `.env.example` for værdier den kan tage imod.
+- [ ] Poster-løsning (e-mail verifikation før manuel/assisteret Facebook-deling)
